@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPS Performance Analysis Report</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 600px;
+            position: relative;
+            page-break-after: always;
+        }
+        
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .title-slide {
+    background: #001f3f; /* Dark blue */
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 700px;
+}
+
+        
+        .title-slide h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .title-slide .subtitle {
+            font-size: 24px;
+            opacity: 0.95;
+            margin-bottom: 50px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 28px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        
+        h3 {
+            color: #555;
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+        }
+        
+        .kpi-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chart-wrapper {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        
+        .chart-container.small {
+            height: 300px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .recommendation {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #28a745;
+        }
+        
+        .recommendation h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .recommendation ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .recommendation li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .recommendation li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .impact-stat {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .impact-value {
+            font-size: 28px;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .impact-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+        
+        .description-box {
+            background: #e8e9ea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .description-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .description-box p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .highlight {
+            background: #ffeaa7;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .slide {
+                page-break-after: always;
+                box-shadow: none;
+                margin: 0;
+            }
+            .container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide">
+            <h1>NPS Performance Analysis</h1>
+            <p class="subtitle">Comprehensive Driver Analysis & Strategic Recommendations</p>
+            <div style="margin-top: 60px;">
+                <p style="font-size: 18px;">Ahsas Srivastava</p>
+                <p style="font-size: 16px; opacity: 0.9;">September 2025</p>
+            </div>
+            <div class="slide-number">1</div>
+        </div>
+
+        <!-- Slide 2: Executive Summary -->
+        <div class="slide">
+            <h1>Executive Summary</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <span class="kpi-value">67.5</span>
+                    <span class="kpi-label">Overall NPS Score</span>
+                </div>
+                <div class="kpi-card" style="border-top-color: #28a745;">
+                    <span class="kpi-value" style="color: #28a745;">78.22%</span>
+                    <span class="kpi-label">Promoters</span>
+                </div>
+                <div class="kpi-card" style="border-top-color: #ffc107;">
+                    <span class="kpi-value" style="color: #ffc107;">11.02%</span>
+                    <span class="kpi-label">Passives</span>
+                </div>
+                <div class="kpi-card" style="border-top-color: #dc3545;">
+                    <span class="kpi-value" style="color: #dc3545;">10.76%</span>
+                    <span class="kpi-label">Detractors</span>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3>🔑 Key Finding</h3>
+                <p><strong>Low driver scores (1-3)</strong> correlate with <span class="highlight">30-49% detractor rates</span></p>
+                <p><strong>High driver scores (4-5)</strong> maintain detractor rates at only <span class="highlight">4-6%</span></p>
+                <p style="margin-top: 10px; font-weight: bold; color: #667eea;">This represents an 8x difference in customer dissatisfaction risk!</p>
+            </div>
+            
+            <div class="success-box">
+                <strong>Example:</strong> When Agent Helpfulness scores 2 out of 5, approximately 42% of customers become detractors. 
+                Improving this to 4 out of 5 reduces detractors to just 5%.
+            </div>
+            
+            <div class="slide-number">2</div>
+        </div>
+
+        <!-- Slide 3: Problem Identification -->
+        <div class="slide">
+            <h1>What's Driving Poor NPS?</h1>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Driver</th>
+                            <th>Severity</th>
+                            <th>Current Problem</th>
+                            <th>Risk Level</th>
+                            <th>Potential NPS Uplift</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Issue Resolution</strong></td>
+                            <td style="color: #dc3545; font-weight: bold;">CRITICAL</td>
+                            <td>48.63% detractors when unresolved</td>
+                            <td style="color: #dc3545; font-weight: bold;">8.19x</td>
+                            <td style="color: #667eea; font-weight: bold;">+94 points</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Process Ease</strong></td>
+                            <td style="color: #dc3545; font-weight: bold;">CRITICAL</td>
+                            <td>37.46% detractors with complex processes</td>
+                            <td style="color: #dc3545; font-weight: bold;">8.89x</td>
+                            <td style="color: #667eea; font-weight: bold;">+83 points</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent Ease</strong></td>
+                            <td style="color: #ff6b00; font-weight: bold;">HIGH</td>
+                            <td>38.82% detractors from difficult interactions</td>
+                            <td style="color: #ff6b00; font-weight: bold;">6.73x</td>
+                            <td style="color: #667eea; font-weight: bold;">+81 points</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent Helpful</strong></td>
+                            <td style="color: #ff6b00; font-weight: bold;">HIGH</td>
+                            <td>36.98% detractors from unhelpful agents</td>
+                            <td style="color: #ff6b00; font-weight: bold;">7.34x</td>
+                            <td style="color: #667eea; font-weight: bold;">+79 points</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent Care</strong></td>
+                            <td style="color: #ffc107; font-weight: bold;">MODERATE</td>
+                            <td>32.34% detractors from lack of care</td>
+                            <td style="color: #ffc107; font-weight: bold;">5.61x</td>
+                            <td style="color: #667eea; font-weight: bold;">+63 points</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="slide-number">3</div>
+        </div>
+
+        <!-- Slide 4: Driver Comparison Visual -->
+        <div class="slide">
+            <h1>Driver Impact Comparison</h1>
+            
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="driverComparisonChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="description-box">
+                <h4>📊 How to Read This Chart:</h4>
+                <p>• <strong>Red Bars:</strong> Detractor percentages when driver scores are LOW (1-3)</p>
+                <p>• <strong>Green Bars:</strong> Detractor percentages when driver scores are HIGH (4-5)</p>
+                <p>• <strong>Blue Line:</strong> Potential NPS improvement (scale on right)</p>
+                <p style="margin-top: 10px;"><strong>Key Insight:</strong> Issue Resolution shows the highest gap (48.63% vs 5.94%), making it our top priority with 94-point NPS uplift potential.</p>
+            </div>
+            
+            <div class="slide-number">4</div>
+        </div>
+
+        <!-- Slide 5: Issue Resolution Deep Dive -->
+        <div class="slide">
+            <h1>Deep Dive: Issue Resolution</h1>
+            
+            <div class="two-column">
+                <div>
+                    <div class="chart-wrapper">
+                        <h3 style="text-align: center;">Issues NOT Resolved</h3>
+                        <div class="chart-container small">
+                            <canvas id="issueNotResolved"></canvas>
+                        </div>
+                    </div>
+                    <div class="warning-box" style="margin-top: 15px;">
+                        <strong>Problem:</strong> Nearly half (48.63%) become detractors when issues aren't resolved
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="chart-wrapper">
+                        <h3 style="text-align: center;">Issues Resolved</h3>
+                        <div class="chart-container small">
+                            <canvas id="issueResolved"></canvas>
+                        </div>
+                    </div>
+                    <div class="success-box" style="margin-top: 15px;">
+                        <strong>Success:</strong> 83.83% become promoters when issues are resolved effectively
+                    </div>
+                </div>
+            </div>
+            
+            <div class="impact-stat">
+                <span class="impact-value">+94 NPS Points</span>
+                <span class="impact-label">Potential Improvement from Better Issue Resolution</span>
+            </div>
+            
+            <div class="slide-number">5</div>
+        </div>
+
+        <!-- Slide 6: Process Ease Analysis -->
+        <div class="slide">
+            <h1>Process Ease: The Critical Inflection Point</h1>
+            
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="processEaseChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <h4>⚠️ Critical Finding</h4>
+                <p>Score 3 is the danger zone! Detractors spike to 48.48% while promoters drop to just 27.27%.</p>
+                <p>Moving from Score 3 to Score 4 cuts detractors by 44% and triples promoters!</p>
+            </div>
+            
+            <div class="success-box">
+                <h4>Real-World Example</h4>
+                <p><strong>Score 3 (Complex):</strong> Customer experiences multiple transfers, fills out redundant forms, waits for callbacks</p>
+                <p><strong>Score 4 (Streamlined):</strong> Single-point resolution, automated verification, immediate assistance</p>
+            </div>
+            
+            <div class="slide-number">6</div>
+        </div>
+
+        <!-- Slide 7: Agent Performance Factors -->
+        <div class="slide">
+            <h1>Agent Performance: Triple Impact</h1>
+            
+            <div class="three-column">
+                <div class="chart-wrapper">
+                    <h3 style="text-align: center; font-size: 16px;">Agent Ease</h3>
+                    <div class="chart-container small">
+                        <canvas id="agentEaseChart"></canvas>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; font-size: 14px;">
+                        38-42% detractors at low scores<br>
+                        5-6% at high scores
+                    </p>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3 style="text-align: center; font-size: 16px;">Agent Helpful</h3>
+                    <div class="chart-container small">
+                        <canvas id="agentHelpfulChart"></canvas>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; font-size: 14px;">
+                        33-42% detractors at low scores<br>
+                        ~5% at high scores
+                    </p>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3 style="text-align: center; font-size: 16px;">Agent Care</h3>
+                    <div class="chart-container small">
+                        <canvas id="agentCareChart"></canvas>
+                    </div>
+                    <p style="text-align: center; margin-top: 10px; font-size: 14px;">
+                        29-35% detractors at low scores<br>
+                        5-6% at high scores
+                    </p>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h4>Key Pattern</h4>
+                <p>All three agent factors show the same critical pattern: Scores 1-3 create 30-40% detractors, but scores 4-5 drop to just 5-6% detractors.</p>
+                <p style="margin-top: 10px;"><strong>Example:</strong> Low-scoring agent says "That's not my department." High-scoring agent says "Let me find the right solution for you."</p>
+            </div>
+            
+            <div class="slide-number">7</div>
+        </div>
+
+        <!-- Slide 8: Prioritized Solutions -->
+        <div class="slide">
+            <h1>Prioritized Solution Roadmap</h1>
+            
+            <div class="two-column">
+                <div class="recommendation">
+                    <h4>Priority 1: First Contact Resolution</h4>
+                    <ul>
+                        <li>Clear escalation paths</li>
+                        <li>Empower agent authority</li>
+                        <li>Quick-reference playbooks</li>
+                        <li>Track FCR metrics</li>
+                    </ul>
+                    <div class="impact-stat">
+                        <span class="impact-value">+94 NPS</span>
+                        <span class="impact-label">Expected Impact</span>
+                    </div>
+                </div>
+                
+                <div class="recommendation">
+                    <h4>Priority 2: Process Simplification</h4>
+                    <ul>
+                        <li>Reduce handoffs</li>
+                        <li>Automate verification</li>
+                        <li>Streamline forms</li>
+                        <li>Establish SLAs</li>
+                    </ul>
+                    <div class="impact-stat">
+                        <span class="impact-value">+83 NPS</span>
+                        <span class="impact-label">Expected Impact</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="two-column">
+                <div class="recommendation">
+                    <h4>Priority 3: Agent Tools</h4>
+                    <ul>
+                        <li>Fix slow systems</li>
+                        <li>Unify screens</li>
+                        <li>Guided workflows</li>
+                        <li>Knowledge base access</li>
+                    </ul>
+                    <div class="impact-stat">
+                        <span class="impact-value">+81 NPS</span>
+                        <span class="impact-label">Expected Impact</span>
+                    </div>
+                </div>
+                
+                <div class="recommendation">
+                    <h4>Priority 4: Agent Development</h4>
+                    <ul>
+                        <li>Micro-coaching</li>
+                        <li>Empathy training</li>
+                        <li>Call calibration</li>
+                        <li>Peer mentoring</li>
+                    </ul>
+                    <div class="impact-stat">
+                        <span class="impact-value">+79 NPS</span>
+                        <span class="impact-label">Expected Impact</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slide-number">8</div>
+        </div>
+
+        <!-- Slide 9: Implementation Timeline -->
+        <div class="slide">
+            <h1>Implementation Timeline</h1>
+            
+            <div class="chart-wrapper">
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="description-box">
+                <h4>Resource Allocation Strategy</h4>
+                <p>• <strong>Month 1-2:</strong> Heavy focus on Issue Resolution for quick wins</p>
+                <p>• <strong>Month 2-3:</strong> Process simplification peaks as workflows are redesigned</p>
+                <p>• <strong>Month 3-4:</strong> Agent training intensifies with new processes</p>
+                <p>• <strong>Month 4-6:</strong> Technology upgrades complete the transformation</p>
+            </div>
+            
+            <div class="slide-number">9</div>
+        </div>
+
+        <!-- Slide 10: Expected Outcomes -->
+        <div class="slide">
+            <h1>Expected Business Outcomes</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-card" style="border-top-color: #28a745;">
+                    <span class="kpi-value" style="color: #28a745;">60%</span>
+                    <span class="kpi-label">Fewer Escalations</span>
+                </div>
+                <div class="kpi-card" style="border-top-color: #28a745;">
+                    <span class="kpi-value" style="color: #28a745;">25%</span>
+                    <span class="kpi-label">Lower Handle Time</span>
+                </div>
+                <div class="kpi-card" style="border-top-color: #667eea;">
+                    <span class="kpi-value" style="color: #667eea;">40%</span>
+                    <span class="kpi-label">Better Retention</span>
+                </div>
+                <div class="kpi-card" style="border-top-color: #667eea;">
+                    <span class="kpi-value" style="color: #667eea;">35%</span>
+                    <span class="kpi-label">More Referrals</span>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <h3>💰 Financial Impact</h3>
+                <div class="two-column">
+                    <div>
+                        <h4>Cost Savings</h4>
+                        <p>• Escalation reduction: $2.4M</p>
+                        <p>• Efficiency gains: $1.8M</p>
+                        <p>• Repeat contact reduction: $1.2M</p>
+                        <p><strong>Total Savings: $5.4M</strong></p>
+                    </div>
+                    <div>
+                        <h4>Revenue Growth</h4>
+                        <p>• Retained revenue: $8.5M</p>
+                        <p>• New customer value: $5.2M</p>
+                        <p>• Upsell opportunities: $3.1M</p>
+                        <p><strong>Total Growth: $16.8M</strong></p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <span style="font-size: 32px; color: #28a745; font-weight: bold;">$22.2M Total Annual Impact</span>
+                </div>
+            </div>
+            
+            <div class="slide-number">10</div>
+        </div>
+
+        <!-- Slide 11: Next Steps -->
+        <div class="slide">
+            <h1>Next Steps & Action Plan</h1>
+            
+            <div class="two-column">
+                <div class="recommendation">
+                    <h4>Immediate Actions (48 Hours)</h4>
+                    <ul>
+                        <li><strong>Day 1:</strong> Form cross-functional task force</li>
+                        <li><strong>Day 2:</strong> Validate findings with detailed data</li>
+                        <li><strong>Day 2:</strong> Present to executive team</li>
+                    </ul>
+                </div>
+                
+                <div class="recommendation">
+                    <h4>30-Day Plan</h4>
+                    <ul>
+                        <li><strong>Week 1:</strong> Detailed implementation planning</li>
+                        <li><strong>Week 2:</strong> Launch quick wins</li>
+                        <li><strong>Week 3:</strong> Select pilot teams</li>
+                        <li><strong>Week 4:</strong> Measure initial impact</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                <h4>Critical Success Factors</h4>
+                <p>1. <strong>Executive sponsorship</strong> - Required for resources and change management</p>
+                <p>2. <strong>Agent buy-in</strong> - Essential for new process adoption</p>
+                <p>3. <strong>Continuous measurement</strong> - Weekly tracking of progress</p>
+                <p>4. <strong>Iterative improvement</strong> - Adjust based on results</p>
+            </div>
+            
+            <div class="slide-number">11</div>
+        </div>
+
+        <!-- Slide 12: Conclusion -->
+        <div class="slide">
+            <h1>Key Takeaways</h1>
+            
+            <div class="info-box" style="text-align: center; padding: 40px;">
+                <h2 style="color: #667eea; margin-bottom: 30px;">The Transformation Opportunity</h2>
+                
+                <div style="display: flex; justify-content: space-around; margin: 40px 0;">
+                    <div>
+                        <h3>Current State</h3>
+                        <p style="font-size: 24px; color: #dc3545;">10.76% Detractors</p>
+                        <p style="font-size: 24px; color: #28a745;">78.22% Promoters</p>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 48px;">→</span>
+                    </div>
+                    <div>
+                        <h3>Target State</h3>
+                        <p style="font-size: 24px; color: #dc3545;"><5% Detractors</p>
+                        <p style="font-size: 24px; color: #28a745;">>85% Promoters</p>
+                    </div>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-top: 30px;">
+                    <h3 style="color: white; margin-bottom: 15px;">Ready to Transform Our NPS?</h3>
+                    <p style="font-size: 18px;">Start with Issue Resolution - our highest impact opportunity</p>
+                  
+                </div>
+            </div>
+            
+            <div class="slide-number">12</div>
+        </div>
+    </div>
+
+    <script>
+        // Chart configurations
+        Chart.defaults.font.family = "'Segoe UI', sans-serif";
+        
+        // Driver Comparison Chart
+        const driverCtx = document.getElementById('driverComparisonChart').getContext('2d');
+        new Chart(driverCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Issue Resolution', 'Process Ease', 'Agent Ease', 'Agent Helpful', 'Agent Care'],
+                datasets: [
+                    {
+                        label: 'Detractor % (Low Score 1-3)',
+                        data: [48.63, 37.46, 38.82, 36.98, 32.34],
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Detractor % (High Score 4-5)',
+                        data: [5.94, 4.21, 5.77, 5.04, 5.77],
+                        backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'NPS Uplift Potential',
+                        data: [94.33, 83.26, 80.77, 79.32, 63.22],
+                        type: 'line',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        yAxisID: 'y1',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Detractor %'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'NPS Uplift'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Issue Not Resolved Chart
+        const issueNotCtx = document.getElementById('issueNotResolved').getContext('2d');
+        new Chart(issueNotCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Detractors 48.63%', 'Passives 19.18%', 'Promoters 32.19%'],
+                datasets: [{
+                    data: [48.63, 19.18, 32.19],
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(40, 167, 69, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Issue Resolved Chart
+        const issueResCtx = document.getElementById('issueResolved').getContext('2d');
+        new Chart(issueResCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Detractors 5.94%', 'Passives 10.23%', 'Promoters 83.83%'],
+                datasets: [{
+                    data: [5.94, 10.23, 83.83],
+                    backgroundColor: [
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(40, 167, 69, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Process Ease Chart
+        const processCtx = document.getElementById('processEaseChart').getContext('2d');
+        new Chart(processCtx, {
+            type: 'line',
+            data: {
+                labels: ['Score 1', 'Score 2', 'Score 3', 'Score 4', 'Score 5'],
+                datasets: [
+                    {
+                        label: 'Detractors %',
+                        data: [30.56, 33.33, 48.48, 4.04, 4.39],
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Promoters %',
+                        data: [45.14, 42.08, 27.27, 89.16, 87.20],
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Percentage'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Agent Ease Chart
+        const agentEaseCtx = document.getElementById('agentEaseChart').getContext('2d');
+        new Chart(agentEaseCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [
+                    {
+                        label: 'Detractors',
+                        data: [41.85, 36.67, 37.93, 5.90, 5.64],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)'
+                    },
+                    {
+                        label: 'Promoters',
+                        data: [31.38, 36.67, 44.83, 85.17, 85.52],
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Agent Helpful Chart
+        const agentHelpCtx = document.getElementById('agentHelpfulChart').getContext('2d');
+        new Chart(agentHelpCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [
+                    {
+                        label: 'Detractors',
+                        data: [35.66, 41.94, 33.33, 4.87, 5.21],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)'
+                    },
+                    {
+                        label: 'Promoters',
+                        data: [38.60, 37.10, 41.67, 85.71, 87.30],
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Agent Care Chart
+        const agentCareCtx = document.getElementById('agentCareChart').getContext('2d');
+        new Chart(agentCareCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [
+                    {
+                        label: 'Detractors',
+                        data: [33.33, 35.11, 28.57, 5.11, 6.42],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)'
+                    },
+                    {
+                        label: 'Promoters',
+                        data: [50.67, 42.24, 53.57, 85.55, 85.40],
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Timeline Chart
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(timelineCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+                datasets: [
+                    {
+                        label: 'Issue Resolution',
+                        data: [100, 80, 60, 40, 20, 10],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)'
+                    },
+                    {
+                        label: 'Process Ease',
+                        data: [80, 100, 80, 60, 40, 20],
+                        backgroundColor: 'rgba(255, 193, 7, 0.7)'
+                    },
+                    {
+                        label: 'Agent Training',
+                        data: [60, 80, 100, 80, 60, 40],
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)'
+                    },
+                    {
+                        label: 'Tools & Systems',
+                        data: [40, 60, 80, 100, 80, 60],
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Resource Allocation %'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
